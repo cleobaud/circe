@@ -1,0 +1,10 @@
+name: Idea
+description: Suggest a reflex, a path or a tool for the library
+labels: [idea]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea, and the problem it solves
+    validations:
+      required: true

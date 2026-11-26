@@ -1,0 +1,13 @@
+name: Question
+description: Ask how something works
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: "Never paste your CIRCÉ key here."
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+    validations:
+      required: true
