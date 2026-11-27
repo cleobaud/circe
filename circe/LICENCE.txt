@@ -1,0 +1,17 @@
+CIRCÉ — LICENCE D'UTILISATION (version 0.2 du 24/11/2026)
+
+Éditeur : CDOW, entreprise individuelle (micro-entreprise), France. Coordonnées complètes : page https://cdow.fr/circe et mentions légales de cdow.fr.
+
+1. Objet. CIRCÉ (les compétences, les scripts, les réflexes et la documentation de ce dossier) vous est concédé, pour la durée de votre abonnement, sous la forme d'un droit d'utilisation personnel, non exclusif et non cessible. CIRCÉ reste la propriété de son auteur (Code de la propriété intellectuelle, art. L111-1 et L122-6).
+
+2. Usage permis. Installer et utiliser CIRCÉ sur au plus 3 ordinateurs qui vous appartiennent ou que vous utilisez, pour vos projets et ceux de vos clients. Ce que vous produisez avec CIRCÉ (sites, vidéos, objets 3D, documents) vous appartient.
+
+3. Interdit, sauf accord écrit, et visant CIRCÉ lui-même (jamais ce que vous réalisez avec lui pour vos clients) : revendre, louer, prêter, partager ou publier CIRCÉ ou une partie de ses fichiers ; en tirer une version, un dérivé ou un produit concurrent destiné à des tiers ; contourner ou retirer le contrôle de licence.
+
+4. Abonnement. Le paiement, la TVA, les factures, la résiliation et le remboursement sont gérés par la plateforme de vente indiquée sur la page de CIRCÉ, selon ses conditions et nos conditions générales de vente. À la fin de l'abonnement, CIRCÉ passe en veille ; vos fichiers et ce que vous avez produit restent à vous.
+
+5. Données. CIRCÉ ne transmet que la clé de licence et l'identifiant du produit au service d'abonnement, pour vérifier la licence. Vos projets, votre mémoire de projet et vos journaux restent sur votre ordinateur.
+
+6. Garantie et responsabilité. CIRCÉ est un outil d'aide pour Claude Code, qui reste un service tiers soumis à ses propres conditions. Il ne garantit pas que Claude ne commettra pas d'erreur, et il ne remplace ni vos sauvegardes ni votre relecture. Dans les limites permises par la loi, la responsabilité de l'éditeur est limitée au montant payé au cours des 12 derniers mois. Rien dans la présente licence ne limite les droits que la loi garantit aux consommateurs.
+
+7. Droit applicable. Droit français. Pour un consommateur, le tribunal compétent est celui que désigne la loi.
