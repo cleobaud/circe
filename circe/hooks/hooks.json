@@ -1,0 +1,283 @@
+{
+  "description": "CIRCÉ : réflexes du système immunitaire (garde avant chaque action sensible, pas de « fini » sans preuve), de la méthode (toujours des exemples, toujours un aperçu, point de recul toutes les 10 demandes et avant une mise en ligne) et de la mémoire (relais du projet remis au démarrage, copie avant résumé). Forme exécutable, sans shell : marche avec Git Bash, PowerShell, macOS et Linux. Chaque réflexe est déclaré pour python3, python et py -3 ; un seul lancement traite l'événement (scripts/unique.py).",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|Write|Edit|MultiEdit|NotebookEdit|Read|Grep|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/garde.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/garde.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/garde.py"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/preuve.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/preuve.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/preuve.py"
+            ],
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/carnet.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/carnet.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/carnet.py"
+            ],
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/niveau.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/niveau.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/niveau.py"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/memoire.py",
+              "contexte"
+            ],
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/memoire.py",
+              "contexte"
+            ],
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/memoire.py",
+              "contexte"
+            ],
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/exemples.py"
+            ],
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/exemples.py"
+            ],
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/exemples.py"
+            ],
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/recul.py"
+            ],
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/recul.py"
+            ],
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/recul.py"
+            ],
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/propositions.py"
+            ],
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/propositions.py"
+            ],
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/propositions.py"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/memoire.py",
+              "instantane"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/memoire.py",
+              "instantane"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/memoire.py",
+              "instantane"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -46,6 +46,22 @@ Your files, project memory and logs stay on your computer. The server only recei
 - Price: **€20/month excl. VAT**, no minimum term, 3 computers per key, full refund within 14 days. Subscribe on [cdow.fr/en](https://cdow.fr/en/).
 - What you produce with CIRCÉ belongs to you, including work for your clients.
 
+## Install
+
+This repository is a Claude Code plugin marketplace. In a terminal (PowerShell, Terminal), with Claude Code installed:
+
+```
+claude plugin marketplace add cleobaud/circe
+claude plugin install circe@circe-cdow
+```
+
+Check with `claude plugin list`: if CIRCÉ shows "disabled", run `claude plugin enable circe@circe-cdow`.
+Then open Claude Code in your project and type `/plugin configure circe@circe-cdow` to paste the licence key you received by e-mail after subscribing, choose "Save", and restart Claude Code. Without a key, CIRCÉ stays on standby: the method, the library and the signed tools are served only to subscribers.
+
+**Update:** `claude plugin marketplace update circe-cdow` then `claude plugin update circe@circe-cdow`, and restart Claude Code. Your key is kept; never uninstall to update (uninstalling erases the saved key).
+
+Step-by-step guide with screenshots: [cdow.fr/en/installation](https://cdow.fr/en/installation). The code in this repository is published so that Claude Code can install and update it; its use is governed by the licence in [`circe/LICENCE.txt`](circe/LICENCE.txt).
+
 ## How it is tested
 
 - 96 automated tests, and 23/23 checks on a clean Windows sandbox.
