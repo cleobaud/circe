@@ -114,6 +114,12 @@ def envoyer(adresse: str, donnees: dict, ouvrir=urllib.request.urlopen, joindre:
 
 def livrer(a, ouvrir=urllib.request.urlopen) -> dict:
     donnees = fiche(a.type, a.titre, a.fichiers, a.texte, a.reseau, a.essai)
+    # Une fiche de sortie part chez l'utilisateur, vers SON automatisation : la méthode servie sous licence n'y entre
+    # pas, et ne s'écrit pas non plus dans le projet. On refuse AVANT d'écrire quoi que ce soit (note du 27/11).
+    import fuite  # noqa: PLC0415 (même dossier)
+    trouve = fuite.dans(donnees)
+    if trouve:
+        return {"refus": f"{trouve} dans la fiche : {fuite.RAISON}", "fiche": None, "envoi": "rien n'est parti"}
     joindre = bool(getattr(a, "joindre", False))
     donnees["fichiers_joints"] = joindre
     dossier = Path(os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()) / ".circe" / "sorties"
@@ -154,7 +160,10 @@ def main(argv: list[str] | None = None) -> int:
         adr = adresse_branchee()
         print(f"CIRCÉ : automatisation {'branchée (' + masquer(adr) + ')' if adr else 'non branchée'}.")
     else:
-        print(json.dumps(livrer(a), ensure_ascii=False))
+        resultat = livrer(a)
+        print(json.dumps(resultat, ensure_ascii=False))
+        if resultat.get("refus"):
+            return 1
     return 0
 
 

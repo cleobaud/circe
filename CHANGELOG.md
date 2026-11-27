@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.0 · Nov 27, 2026 · signed, self-updating
+This version brings everything fixed since 0.5.0 (0.5.1 to 0.5.3 were never published).
+- **CIRCÉ updates itself.** At startup it installs the new version on its own and tells you which one is running; it takes over at the next launch of Claude Code. Automatic updates only come from the official CDOW marketplace (this repository); any other source is announced and nothing installs by itself. `python scripts/maj.py proposer` or `jamais` gives you back control.
+- **Every version is signed by CDOW.** The package carries a signed record of its files; at startup CIRCÉ says in one line if a file of the software was changed, and how to restore the original (`claude plugin update circe@circe-cdow`). It never blocks: it is your computer. Line-ending conversions by Git do not count as changes.
+- **CIRCÉ tells you where it stands.** `python scripts/etat.py`: installed version, licence state, server reachable or not, the skills counted in the product, and what keeps working without the server.
+- **26 skills**: new `visuel` (posts, stories, posters, banners) and `schema-video` (a video series: a fixed format, new content each episode).
+- **Video checks are tooled** (`scripts/video.py`): frame, frames per second, duration, sound, black frames, a 12-image contact sheet, a registry that refuses a shot already shown, and a font check before rendering.
+- **Images are measured, not guessed** (`scripts/regarder.py`): size, luminance, dominant colours, transparency and the largest plain area where text can sit.
+- Reflexes that now catch the common cases: a brief read from a file, image requests that were missed, the end-of-task words used by CIRCÉ itself; a plan is proposed once real work is under way.
+- The licensed method can no longer leave the work in progress: it is refused in files written to the project and in exports to your automations.
+- 249 automated tests.
+
 ## 0.5.0 · Nov 25, 2026 · nothing imposed
 - **CIRCÉ imposes nothing at install.**
   - By default it refuses only 3 catastrophic moves: formatting a disk, wiping a drive root, wiping your home folder.

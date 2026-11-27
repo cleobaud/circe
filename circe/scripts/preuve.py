@@ -17,8 +17,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # Python embarqué (fichier ._pth) : le dossier du script n'est pas dans le chemin d'import
 
+# Mots de fin ajoutés par l'audit P2 du 27/11/2026, mesurés sur 37 tours réels de ce poste : « FAIT : … » en tête de ligne
+# (la règle de réponse courte de CIRCÉ, « FAIT / EN COURS / À TOI ») et « ça marche » (cité dans la description de la
+# compétence preuve) annonçaient une fin que ce hook ne voyait pas — 6 tours reconnus avant, 9 après, et 0 nouvelle
+# relance à tort. FAIT seulement en majuscules et en tête de ligne : « fait » en prose n'annonce rien. Les tournures non
+# mesurées (« en place », « au vert ») ne sont PAS ajoutées.
 ANNONCE = re.compile(r"(?i)(?:\b(?:c'est |tout est |j'ai )?(?:fini|terminé|termine|achevé|livré)\b|\bc'est fait\b|\btout est prêt\b|\bprêt à (?:livrer|publier|l'emploi)\b"
-                     r"|\b(?:done|completed|finished|all set|ready to ship)\b)")
+                     r"|\b(?:done|completed|finished|all set|ready to ship)\b"
+                     r"|(?:^|\n)\s*(?:[-*#>]+\s*)?(?:\*\*)?(?-i:FAIT)\b\s*(?:[:.·—–-]|\*\*|$)"
+                     r"|\b[çc]a marche\b)")
 # Marqueurs de preuve volontairement précis (relecture Codex du 24/11 : « sortie », « OK », « passed » seuls étaient trop larges).
 PREUVE = re.compile(r"(?s)(?:```|\b[Pp]reuve\b|\bVÉRIFIÉ\b|\bINFÉRÉ\b|\bINCONNU\b|\bDÉCLARÉ\b|\b[Vv]érifié par\b"
                     r"|\b\d+\s*(?:tests?|essais?)\b[^\n]{0,30}\b(?:OK|ok|passés?|passent|verts?|réussis?|passed)\b|\b\d+\s*/\s*\d+\s*(?:tests?|OK)\b"
@@ -28,7 +35,8 @@ PREUVE = re.compile(r"(?s)(?:```|\b[Pp]reuve\b|\bVÉRIFIÉ\b|\bINFÉRÉ\b|\bINCO
 # un mot cité entre guillemets, une proposition « quand / une fois / dès que … terminé », une question.
 CITATION = re.compile(r"«[^»]{0,80}»|“[^”]{0,80}”|\"[^\"\n]{0,80}\"|`[^`\n]{0,80}`")
 CONDITION = re.compile(r"(?i)\b(?:quand|lorsque|dès que|une fois(?: que)?|avant que|jusqu.à ce que|si|when|once|after|until|if)\b"
-                       r"[^.!?\n]{0,40}?\b(?:fini|terminé|termine|achevé|livré|fait|prêt|done|finished|completed)\b")
+                       r"[^.!?\n]{0,40}?\b(?:fini|terminé|termine|achevé|livré|fait|prêt|marche|done|finished|completed)\b")
+# « marche » ajouté avec « ça marche » (audit P2 du 27/11) : sans lui, « quand ça marche, je te le dis » était pris pour une fin.
 # Ce qui est remis à plus tard n'est pas une preuve (relecture Codex du 24/11 : « C'est fini. À vérifier plus tard : `rapport.pdf`. »
 # passait, le nom de fichier comptant comme preuve). La proposition qui suit ces mots est retirée avant de chercher la preuve.
 # « pas vérifié » / « non vérifié » restent une déclaration honnête (c'est ce que demande la relance).

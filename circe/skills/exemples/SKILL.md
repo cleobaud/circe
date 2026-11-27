@@ -13,6 +13,7 @@ On ne décrit jamais un exemple qu'on n'a pas regardé.
    ```
    - Vidéo (fichier) : planche de 12 images, durée, cadre, images par seconde, son, nombre de plans et plans par minute.
    - Site (adresse) : captures ordinateur (1440 px) et petit écran (500 px). Pour le téléphone exact, demande une capture faite sur un téléphone.
+   - Image (photo, logo, visuel) : taille, cadre, poids, luminance, part sombre et claire, 5 couleurs dominantes, part transparente, et la plus grande bande unie — la zone où un texte se pose sans boîte ni voile.
    - Vidéo en ligne (TikTok, YouTube…) : pas de téléchargement. Demande le fichier, ou 6 à 12 captures.
    - S'il manque ffmpeg ou un navigateur, le résultat le dit : transmets le conseil tel quel.
 2. **Ouvrir les images** (planche, captures) avec l'outil de lecture d'image et les regarder vraiment.

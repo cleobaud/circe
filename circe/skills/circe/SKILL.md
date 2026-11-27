@@ -30,6 +30,7 @@ Les **règles de conduite** de CIRCÉ (12 règles : lire à la lettre, avis fran
 | toute création ou modification qui dépasse un petit correctif | `circe:methode` |
 | enjeu visuel (site, visuel, vidéo, 3D) sans direction artistique claire | `circe:references-visuelles` |
 | l'utilisateur donne des exemples (vidéos, sites, images) | `circe:exemples` |
+| image fixe à montrer : publication ou story de réseau social, affiche, bannière, vignette, visuel d'annonce | `circe:visuel` |
 | site ou page web | `circe:site` |
 | vidéo, film, motion | `circe:video` |
 | objet ou scène 3D | `circe:objet-3d` |
@@ -47,6 +48,10 @@ Les **règles de conduite** de CIRCÉ (12 règles : lire à la lettre, avis fran
 | fin de session ou de tâche | `circe:cloture` |
 | livrable validé à passer à une automatisation (n8n, Make, Zapier) | `circe:sortie` |
 | clé de licence, « CIRCÉ est en veille » | `circe:activer` |
+
+**Le serveur ne répond pas, ou on te demande ce que CIRCÉ contient ?** `python "${CLAUDE_PLUGIN_ROOT}/scripts/etat.py"` :
+version installée, licence, serveur joignable ou non, nombre de compétences (compté, jamais recopié), ce qui marche
+quand même hors ligne et ce qui attend le serveur. `--hors-ligne` en donne la version courte à dire à l'utilisateur.
 
 ## Proportionnalité
 Un petit correctif n'a pas besoin de tout le parcours : comprendre, faire, vérifier, dire la preuve. Le parcours complet sert aux livrables que quelqu'un va regarder, utiliser ou payer.

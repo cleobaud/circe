@@ -32,6 +32,17 @@ PRESENTE = re.compile(rf"(?i)\b(?:voici|voila|je te montre|je vous montre|a doub
                       rf"|\b{LIVRABLE}\b[^.!?\n]{{0,40}}?\b(?:est|sont|:|—|-)?\s*\b{PRET}\b")
 OUTIL = Path(__file__).resolve().parent / "cote_a_cote.py"
 
+# Essai réel du 27/11 : ce réflexe a bloqué DEUX FOIS un message où rien n'avait été produit — un état des lieux
+# « /demarrage » qui citait des aperçus faits trois jours plus tôt, puis un audit qui parlait de visuels et de logo. Les
+# mots ne disent pas qu'on livre. On exige donc un FAIT : un fichier visuel écrit ou modifié pendant CE tour, dans le projet.
+VISUELS = {".html", ".htm", ".css", ".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".bmp", ".ico", ".tif",
+           ".tiff", ".mp4", ".webm", ".mov", ".m4v", ".blend", ".glb", ".gltf", ".obj", ".fbx", ".stl", ".pdf"}
+# « .circe/ » est la comptabilité de CIRCÉ (captures de référence, côte à côte, journal) : ce n'est pas une production.
+SAUTES = {".circe", ".git", "node_modules", "__pycache__", ".venv", "venv", "build", ".next", ".cache", ".idea", ".vscode"}
+PLAFOND_FICHIERS = 20000
+PLAFOND_SECONDES = 2.0
+FENETRE_SANS_DATE = 600.0   # demande introuvable dans la transcription : on regarde les 10 dernières minutes
+
 
 def sans_accents(texte: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFD", texte) if unicodedata.category(c) != "Mn")
@@ -108,6 +119,32 @@ def cote_a_cote_recent(projet: Path, depuis: float | None) -> bool:
     return False
 
 
+def visuel_produit(projet: Path, depuis: float | None) -> bool:
+    """Vrai si un fichier visuel du projet a été écrit ou modifié pendant ce tour.
+
+    On regarde le disque, pas les noms d'outils : une page écrite par Write, une image rendue par un script Python,
+    une vidéo sortie par ffmpeg comptent toutes pareil. Sans date de demande, on prend une fenêtre de 10 minutes.
+    Plafonds de fichiers et de durée : ce réflexe ne doit jamais retarder la fin d'un tour.
+    """
+    seuil = depuis if depuis is not None else time.time() - FENETRE_SANS_DATE
+    fin = time.monotonic() + PLAFOND_SECONDES
+    vus = 0
+    for racine, dossiers, fichiers in os.walk(projet):
+        dossiers[:] = [d for d in dossiers if d not in SAUTES]
+        for nom in fichiers:
+            vus += 1
+            if vus > PLAFOND_FICHIERS or time.monotonic() > fin:
+                return True   # projet trop gros pour conclure : on ne bloque pas sur une inconnue
+            if os.path.splitext(nom)[1].lower() not in VISUELS:
+                continue
+            try:
+                if os.path.getmtime(os.path.join(racine, nom)) >= seuil:
+                    return True
+            except OSError:
+                continue
+    return False
+
+
 def en_veille() -> bool:
     try:
         import licence  # noqa: PLC0415 (même dossier)
@@ -127,6 +164,8 @@ def evaluer(evenement: dict, projet: Path) -> dict | None:
     texte, debut = tour(Path(chemin))
     if not texte or not PRESENTE.search(sans_accents(texte)):
         return None
+    if not visuel_produit(projet, debut):
+        return None   # rien de visuel produit pendant ce tour : parler d'un livrable n'est pas le livrer (essai du 27/11)
     if cote_a_cote_recent(projet, debut):
         return None
     return {"decision": "block", "reason": raison()}
