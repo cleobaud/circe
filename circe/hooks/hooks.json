@@ -1,5 +1,5 @@
 {
-  "description": "CIRCÉ : réflexes du système immunitaire (garde avant chaque action sensible, pas de « fini » sans preuve), de la méthode (toujours des exemples, toujours un aperçu, point de recul toutes les 10 demandes et avant une mise en ligne) et de la mémoire (relais du projet remis au démarrage, copie avant résumé). Forme exécutable, sans shell : marche avec Git Bash, PowerShell, macOS et Linux. Chaque réflexe est déclaré pour python3, python et py -3 ; un seul lancement traite l'événement (scripts/unique.py).",
+  "description": "CIRCÉ : réflexes du système immunitaire (garde avant chaque action sensible, pas de « fini » sans preuve), de la méthode (toujours des exemples (phrase tapee ET brief lu dans un fichier), toujours un aperçu, point de recul toutes les 10 demandes et avant une mise en ligne) et de la mémoire (relais du projet remis au démarrage, copie avant résumé). Forme exécutable, sans shell : marche avec Git Bash, PowerShell, macOS et Linux. Chaque réflexe est déclaré pour python3, python et py -3 ; un seul lancement traite l'événement (scripts/unique.py).",
   "hooks": {
     "PreToolUse": [
       {
@@ -27,6 +27,38 @@
             "args": [
               "-3",
               "${CLAUDE_PLUGIN_ROOT}/scripts/garde.py"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/exemples.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/exemples.py"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "py",
+            "args": [
+              "-3",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/exemples.py"
             ],
             "timeout": 10
           }

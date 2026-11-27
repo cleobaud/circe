@@ -18,6 +18,7 @@ import os
 import platform
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import unicodedata
@@ -136,12 +137,167 @@ def site(adresse: str) -> dict:
             "conseil": "Regardez aussi le site en vrai (défilement, animations) : une capture ne montre pas le mouvement. Pour le téléphone exact (390 px), demandez une capture faite sur un téléphone."}
 
 
+# Défaut D13 (session binôme, mission M5 du 27/11/2026) : pour une vidéo, cet outil donnait durée, cadre, images par seconde
+# et plans ; pour un site, des captures ; pour une IMAGE, il recopiait le fichier et s'arrêtait là. La fiche d'analyse
+# demandait donc des mesures que l'outil ne donnait pas, et il a fallu les refaire à la main. Il les donne maintenant.
+COTE_ANALYSE = 64          # l'image est réduite à 64 × 64 : assez pour les couleurs et les aplats, et instantané
+SEUIL_APLAT = 16           # une rangée est « unie » si ses pixels s'écartent de moins de ça de sa couleur moyenne
+CONSEIL_MESURE = ("Mesures de couleur indisponibles : ni ffmpeg ni Pillow. Installez l'un des deux "
+                  "(« winget install Gyan.FFmpeg », ou « python -m pip install Pillow ») pour la palette et les aplats.")
+
+
+def dimensions_entete(fichier: Path) -> tuple[int, int] | None:
+    """Largeur et hauteur lues dans l'en-tête (PNG, GIF, WebP, JPEG) : marche sans aucun outil installé."""
+    try:
+        with open(fichier, "rb") as f:
+            t = f.read(32)
+            if t[:8] == b"\x89PNG\r\n\x1a\n":
+                return struct.unpack(">II", t[16:24])
+            if t[:6] in (b"GIF87a", b"GIF89a"):
+                return struct.unpack("<HH", t[6:10])
+            if t[:4] == b"RIFF" and t[8:12] == b"WEBP":
+                forme = t[12:16]
+                if forme == b"VP8X":
+                    l = int.from_bytes(t[24:27], "little") + 1
+                    h = int.from_bytes(t[27:30], "little") + 1
+                    return l, h
+                if forme == b"VP8L":
+                    bits = int.from_bytes(t[21:25], "little")
+                    return (bits & 0x3FFF) + 1, ((bits >> 14) & 0x3FFF) + 1
+                if forme == b"VP8 ":
+                    return struct.unpack("<H", t[26:28])[0] & 0x3FFF, struct.unpack("<H", t[28:30])[0] & 0x3FFF
+                return None
+            if t[:2] == b"\xff\xd8":                      # JPEG : on avance de marqueur en marqueur jusqu'au cadre
+                f.seek(2)
+                while True:
+                    octet = f.read(1)
+                    while octet and octet != b"\xff":
+                        octet = f.read(1)
+                    while octet == b"\xff":
+                        octet = f.read(1)
+                    if not octet:
+                        return None
+                    marqueur = octet[0]
+                    taille = struct.unpack(">H", f.read(2))[0]
+                    if marqueur in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                        f.read(1)
+                        h, l = struct.unpack(">HH", f.read(4))
+                        return l, h
+                    f.seek(taille - 2, 1)
+    except (OSError, struct.error, IndexError):
+        return None
+    return None
+
+
+def pixels_reduits(fichier: Path) -> list[tuple[int, int, int, int]] | None:
+    """64 × 64 pixels en RVB + transparence, par ffmpeg (déjà nécessaire pour les vidéos) ou par Pillow si elle est là.
+    La transparence compte : sans elle, un logo sur fond transparent est mesuré comme « noir à 70 % » (essai du 27/11)."""
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg:
+        r = lancer([ffmpeg, "-hide_banner", "-loglevel", "error", "-i", str(fichier),
+                    "-vf", f"scale={COTE_ANALYSE}:{COTE_ANALYSE}", "-frames:v", "1",
+                    "-f", "rawvideo", "-pix_fmt", "rgba", "-"], 60)
+        brut = r.stdout or b""
+        if len(brut) >= COTE_ANALYSE * COTE_ANALYSE * 4:
+            return [tuple(brut[i:i + 4]) for i in range(0, COTE_ANALYSE * COTE_ANALYSE * 4, 4)]
+    try:
+        from PIL import Image  # noqa: PLC0415 (facultatif : seulement si l'utilisateur l'a installée)
+        petite = Image.open(fichier).convert("RGBA").resize((COTE_ANALYSE, COTE_ANALYSE))
+        return list(petite.getdata())
+    except Exception:
+        return None
+
+
+def _luminance(p: tuple[int, int, int]) -> float:
+    return 0.2126 * p[0] + 0.7152 * p[1] + 0.0722 * p[2]
+
+
+def bande_unie(pixels: list[tuple[int, int, int]]) -> dict | None:
+    """La plus grande bande horizontale d'un seul ton : c'est là qu'un texte peut se poser sans boîte ni voile."""
+    rangees = [pixels[y * COTE_ANALYSE:(y + 1) * COTE_ANALYSE] for y in range(COTE_ANALYSE)]
+    unies = []
+    for rangee in rangees:
+        pleins = [p for p in rangee if len(p) < 4 or p[3] >= 128]
+        if len(pleins) < len(rangee) // 2:        # rangée surtout transparente : pas une zone de texte
+            unies.append(None)
+            continue
+        moy = tuple(sum(p[c] for p in pleins) / len(pleins) for c in range(3))
+        ecart = max(max(abs(p[c] - moy[c]) for c in range(3)) for p in pleins)
+        unies.append(moy if ecart <= SEUIL_APLAT else None)
+    meilleur, debut, courant = (0, 0, 0), None, 0
+    for y in range(COTE_ANALYSE + 1):
+        proche = (y < COTE_ANALYSE and unies[y] is not None
+                  and (debut is None or max(abs(unies[y][c] - unies[debut][c]) for c in range(3)) <= SEUIL_APLAT))
+        if proche:
+            debut = y if debut is None else debut
+            courant += 1
+        else:
+            if courant > meilleur[0]:
+                meilleur = (courant, debut, y - 1)
+            debut, courant = None, 0
+    hauteur, y1, y2 = meilleur
+    if hauteur < 6:                       # moins de 10 % de la hauteur : ce n'est pas une zone de texte
+        return None
+    ton = [sum(unies[y][c] for y in range(y1, y2 + 1)) / hauteur for c in range(3)]
+    lum = _luminance(tuple(ton))
+    return {"debut_pourcent": round(100 * y1 / COTE_ANALYSE), "fin_pourcent": round(100 * (y2 + 1) / COTE_ANALYSE),
+            "part_de_la_hauteur_pourcent": round(100 * hauteur / COTE_ANALYSE),
+            "couleur": "#%02x%02x%02x" % tuple(round(c) for c in ton),
+            "texte_lisible": "clair" if lum < 90 else ("sombre" if lum > 165 else "aucun sans retouche")}
+
+
+def mesurer_image(fichier: Path) -> dict:
+    mesures: dict = {}
+    taille = dimensions_entete(fichier)
+    pixels = pixels_reduits(fichier)
+    if pixels and not taille:
+        try:
+            from PIL import Image  # noqa: PLC0415
+            taille = Image.open(fichier).size
+        except Exception:
+            taille = None
+    if taille:
+        l, h = taille
+        mesures.update({"largeur": l, "hauteur": h, "rapport": round(l / h, 3) if h else None,
+                        "cadre": "carre" if abs(l - h) <= 2 else ("vertical" if h > l else "horizontal")})
+    mesures["poids_ko"] = round(fichier.stat().st_size / 1024)
+    if not pixels:
+        mesures["conseil"] = CONSEIL_MESURE
+        return mesures
+    # Les pixels transparents ne sont pas une couleur : un logo sur fond transparent était mesuré « noir à 70 % ».
+    opaques = [p for p in pixels if len(p) < 4 or p[3] >= 128]
+    transparence = round(100 * (len(pixels) - len(opaques)) / len(pixels))
+    if transparence >= 5:
+        mesures["part_transparente_pourcent"] = transparence
+    if not opaques:
+        mesures["conseil"] = "image entièrement transparente : rien à mesurer."
+        return mesures
+    n = len(opaques)
+    mesures["luminance_moyenne"] = round(sum(_luminance(p) for p in opaques) / n)
+    mesures["part_sombre_pourcent"] = round(100 * sum(1 for p in opaques if _luminance(p) < 40) / n)
+    mesures["part_claire_pourcent"] = round(100 * sum(1 for p in opaques if _luminance(p) > 215) / n)
+    comptes: dict[tuple[int, int, int], int] = {}
+    for p in opaques:                      # couleurs arrondies par pas de 16 : on cherche des familles, pas des nuances
+        cle = (p[0] // 16 * 16, p[1] // 16 * 16, p[2] // 16 * 16)
+        comptes[cle] = comptes.get(cle, 0) + 1
+    dominantes = sorted(comptes.items(), key=lambda x: -x[1])[:5]
+    mesures["couleurs_dominantes"] = [{"couleur": "#%02x%02x%02x" % c, "part_pourcent": round(100 * k / n)}
+                                      for c, k in dominantes]
+    bande = bande_unie(pixels)
+    mesures["zone_de_texte"] = bande or "aucune bande unie d'au moins 10 % de la hauteur"
+    return mesures
+
+
 def image(fichier: Path) -> dict:
     sortie = dossier_exemples() / nom_sur(fichier.stem)
     sortie.mkdir()
     cible = sortie / fichier.name
     shutil.copy2(fichier, cible)
-    return {"type": "image", "fichier": str(cible), "dossier": str(sortie)}
+    resultat = {"type": "image", "fichier": str(cible), "dossier": str(sortie)}
+    resultat.update(mesurer_image(fichier))
+    resultat["suite"] = ("Ouvre l'image et regarde-la vraiment, puis écris la fiche (circe:exemples). "
+                         "La « zone_de_texte » est une bande unie : c'est là qu'un texte se pose sans boîte ni voile.")
+    return resultat
 
 
 def regarder(entree: str, n_images: int = 12) -> dict:

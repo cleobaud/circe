@@ -141,6 +141,17 @@ def evaluer(evenement: dict, propositions: list | None = None) -> dict | None:
         return None
     if outil in OUTILS_ECRITURE:
         chemin = str(entree.get("file_path") or entree.get("notebook_path") or "")
+        # La méthode servie sous licence ne s'écrit nulle part : ni dans le projet, ni dans une mémoire, ni dans un
+        # document. Ce n'est pas une protection que l'utilisateur active ou non — c'est la licence du logiciel, et elle
+        # protège l'abonné autant que nous. Le refus dit quoi écrire à la place (le travail, pas la méthode).
+        try:
+            import fuite  # noqa: PLC0415 (même dossier)
+            ecrit = " ".join(str(entree.get(c) or "") for c in ("content", "new_string", "new_source", "contenu"))
+            signe = fuite.detecter(ecrit)
+            if signe:
+                return _decision("deny", f"{signe} dans ce qui allait être écrit ({Path(chemin).name}) : {fuite.RAISON}")
+        except Exception:                       # noqa: BLE001 — un contrôle en panne ne doit pas bloquer une écriture
+            pass
         if CHOIX_PROTECTIONS.search(chemin):
             return _decision("ask", DEMANDE_CHOIX)
         if ECRITURE_INTERDITE.match(chemin) and en_service("systeme", "écriture dans un dossier du système"):

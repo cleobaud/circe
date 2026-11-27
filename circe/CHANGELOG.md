@@ -1,5 +1,59 @@
 # Versions de CIRCÉ
 
+## 0.6.0 — 27/11/2026
+
+Cette version réunit tout ce qui a été corrigé depuis la 0.5.0, la dernière que vous avez pu installer : les 0.5.1 à
+0.5.3 n'ont jamais été publiées (annonce de la version au démarrage, mise à jour automatique, et son correctif Windows ;
+leurs sections détaillées sont plus bas).
+
+- **CIRCÉ vous dit où il en est, et ne vous laisse plus croire qu'il est cassé.** Nouvelle commande
+  `python scripts/etat.py` : version installée, état de la licence, serveur joignable ou non, nombre de compétences
+  compté dans le produit, puis ce qui marche **sans** le serveur (mémoire du projet, système immunitaire, compétences
+  et leurs résumés, outils de contrôle) et ce qui l'attend (la méthode détaillée, les outils servis). `--hors-ligne`
+  donne la phrase courte à lire quand la connexion manque.
+- **Vous voyez si un outil de CIRCÉ a été modifié sur votre poste.** Le paquet porte le relevé signé de ses fichiers ;
+  au démarrage, CIRCÉ dit en une ligne ce qui a changé, et la commande pour revenir à l'origine
+  (`claude plugin update circe@circe-cdow`). Il ne bloque jamais : c'est votre ordinateur. Un relevé non signé ou
+  réécrit est signalé comme tel.
+- **La mise à jour automatique ne s'installe plus que depuis la place de marché officielle de CDOW.** Toute autre
+  source (dossier local, autre dépôt) est annoncée au démarrage, et rien ne s'installe tout seul.
+- **CIRCÉ mesure une image au lieu de la deviner.** `scripts/regarder.py` donne, pour une image,
+  sa taille, sa luminance, ses cinq couleurs dominantes, sa part transparente et sa plus grande bande unie — la zone où
+  un texte se pose sans boîte ni voile. Nouvelle compétence `circe:visuel` (publication, story, affiche, bannière),
+  nouvelle compétence `circe:schema-video` (une série de vidéos : un format fixe, un contenu neuf à chaque épisode).
+- **Les contrôles d'une vidéo sont outillés** : `scripts/video.py controler` vérifie le cadre, les images par seconde,
+  la durée, la présence ou l'absence de son, les images noires, et sort une planche de 12 images ;
+  `video.py registre` refuse un épisode qui reprend un plan déjà montré ; `video.py polices` vérifie qu'une police
+  couvre bien tout le texte **avant** le rendu ; `video.py pieges` liste les erreurs déjà commises, à lire avant de produire.
+- **Les réflexes voient enfin les cas les plus courants.** Le rappel « toujours des exemples » se déclenche aussi quand
+  le brief est lu dans un fichier (et non tapé dans la conversation), et sur les demandes d'image qu'il ratait
+  (« fais-moi une image pour Instagram », « il me faudrait une vignette »). Le rappel « pas de fini sans preuve »
+  entend maintenant les formules que CIRCÉ lui-même emploie (« FAIT : … », « ça marche »).
+- **CIRCÉ propose un plan quand le travail le mérite** : quand un projet a déjà plusieurs demandes derrière lui, dont au
+  moins une qui a produit des fichiers, et toujours pas de `.circe/PLAN.md`. Une seule fois, jamais imposé.
+- **La méthode servie reste chez vous, et chez nous.** Elle ne peut plus être écrite dans un fichier de projet ni
+  envoyée à une automatisation : ce refus n'est pas une protection que vous activez, c'est le contrat de licence, et il
+  protège aussi vos fichiers d'une copie qui ne vous appartient pas. Ce que CIRCÉ produit pour vous, lui, reste à vous
+  et sort librement.
+- **Une mise à jour garde votre clé et la mémoire de vos projets** ; c'est une désinstallation qui efface la clé. C'est
+  maintenant écrit à l'écran la première fois qu'un projet voit une nouvelle version.
+- Essais : 249 tests automatiques passent sur cette version (109 avant la journée du 27/11). Chaque correction a les
+  siens, et plusieurs ont été écrits à partir d'erreurs réelles rejouées telles quelles.
+
+## 0.5.3 — 27/11/2026
+- **Correction : sous Windows, la mise à jour automatique de la 0.5.2 ne démarrait pas.** La commande `claude` y est un fichier `.CMD` ; lancée par son nom seul, elle était introuvable. CIRCÉ résout maintenant son chemin complet avant de la lancer, et ne tente rien si Claude Code n'est pas dans le PATH. Trouvé par un essai de bout en bout, pas par relecture.
+
+## 0.5.2 — 27/11/2026
+- **CIRCÉ se met à jour lui-même.** Au démarrage, il regarde si une version plus récente existe et l'installe seul, sans rien demander. Elle prend la main au prochain lancement de Claude Code : les plugins se chargent au démarrage, c'est une limite de Claude Code et non un choix de CIRCÉ. Tout est dit en une ligne, jamais en silence.
+- Pour reprendre la main : `python scripts/maj.py proposer` (CIRCÉ demandera avant d'installer) ou `python scripts/maj.py jamais`. `python scripts/maj.py etat` dit ce qui est installé, ce qui est disponible et le réglage.
+- Aucun appel réseau dans le plugin : ce sont `claude plugin marketplace update` et `claude plugin update`, lancés détachés, qui vont voir. Une commande absente, un catalogue illisible ou une panne n'empêchent jamais une session de démarrer, et une tentative ratée ne se répète pas en boucle.
+- Essais : 15 tests pour la mise à jour (les trois réglages, la comparaison des versions, les pannes), 133 au total.
+
+## 0.5.1 — 27/11/2026
+- **Au démarrage, CIRCÉ dit quelle version est installée et comment en chercher une plus récente.** La première fois qu'un projet voit une version, il résume aussi ce qu'elle apporte (nouvelles compétences, nouveaux réflexes). Tout est lu dans le paquet : aucun appel réseau, rien à configurer.
+- **Le réflexe du niveau ne relance plus à tort.** Il vérifie qu'un fichier visuel a vraiment été écrit ou modifié pendant le tour, au lieu de chercher des mots (« aperçu », « logo », « visuels ») dans la réponse de Claude. Essai réel du 27/11 : deux relances injustifiées de suite, sur un état des lieux puis sur un audit, alors que rien n'avait été produit.
+- Essais : 109 tests automatiques avant ces deux corrections, et de nouveaux tests pour chacune (dont les deux relances injustifiées, rejouées telles quelles).
+
 ## 0.5.0 — en préparation : rien d'imposé
 - **À l'installation, CIRCÉ n'impose rien.** Par défaut, il refuse seulement 3 gestes catastrophiques : formater un disque, effacer la racine d'un disque, effacer le dossier personnel. Claude vous l'explique dès la première session, puis le rappelle quand il le faut.
 - **Les autres protections sont proposées, jamais appliquées d'office** : suppression récursive, `git push`, réécriture d'historique git, mise en production, publication d'un paquet, script téléchargé puis exécuté, base de données, fichiers de secrets, dossiers du système, réglages de Claude Code, envois par un outil connecté. Quand un geste qu'une protection aurait couvert passe, Claude vous la propose une fois, en une phrase ; il ne l'active jamais lui-même.

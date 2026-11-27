@@ -1,6 +1,6 @@
 {
   "name": "circe",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "CIRCÉ, un système pour Claude Code inspiré du vivant : un système immunitaire qui n'impose rien (3 gestes catastrophiques refusés par défaut, les autres protections proposées et activées par vous ; un « fini » sans preuve est relancé), une méthode de création en boucles (site, vidéo, objet 3D : vos exemples d'abord, un aperçu avant de construire, un contrôle à chaque étape) et une mémoire de projet (reprise d'une session à l'autre).",
   "author": {
     "name": "CDOW"
